@@ -1,0 +1,222 @@
+# This function takes an input string and encodes said string into morse code
+def encodedmorse(string):
+  """
+    This encodes a given string into Morse code
+
+    This function converts each character in the input string into its corresponding Morse code representation,
+    following a predefined mapping stored in the 'morse' dictionary
+
+    Characters not found in the mapping are returned as-is
+
+    Spaces in the input string are represented by a slash ('/') in the Morse code output
+
+    Parameters:
+    - string (str): The input string to be encoded into Morse code
+
+    Returns:
+    - str: A string representing the Morse code encoded version of the input string. Each Morse code character
+           or symbol is separated by a space, and spaces in the original string are represented by a slash ('/')
+  """
+  for char in string.upper():
+    encodedmessage = []
+    if char in morse:
+      encodedmessage.append(morse[char])
+    elif char == " ":
+      encodedmessage.append('/')
+    else:
+      encodedmessage.append(char)
+
+  return ' '.join(encodedmessage)
+
+stringinput = str(input("Please input a string to be encoded:"))
+morsecode = encodedmorse(stringinput)
+print(f"Original: {stringinput}\nEncoded in Morse: {morsecode}")
+print(len(morsecode))
+
+---------------
+# This inverts the morse code dictionary for decoding
+inversemorse = {value: key for key, value in morse.items()}
+
+# This function is used to decode Morse code to text
+def decodemorse(morsecode):
+    """
+    This decodes a given Morse code string back to text.
+
+    This function decodes an input string from Morse code to English text based on a predefined mapping stored in the 'inversemorse' dictionary
+
+    Each Morse code symbol is expected to be separated by a space, and Morse code words (sequences of symbols) are separated by a slash ('/')
+
+    The function handles the decoding symbol by symbol and reconstructs the original message by translating Morse code sequences to
+    their corresponding English characters
+
+    Parameters:
+    - morsecode (str): The Morse code string to be decoded. It is assumed that Morse code symbols for a letter
+                       are separated by spaces, and Morse code words are separated by ' / '
+
+    Returns:
+    - str: The decoded English text. Spaces in the Morse code are preserved in the output as spaces between
+           words in the decoded text
+    """
+
+    # This splits the morse code into words and symbols
+    decodedmessage = ''
+
+    # This code looks at the morse code, which if there is a "/" present, it takes only the elements in front of it, as indicated by the [0]
+    morsecode = morsecode.split('/', 1)[0]
+
+    # This states that / is used to seperate words (aka a space)
+    words = morsecode.split(' / ')
+
+    for word in words:
+
+        # This splits each word into its symbols
+        letters = word.split()
+        for letter in letters:
+
+            # This decodes each symbol
+            decodedmessage += inversemorse.get(letter, '')
+
+        # This adds a space after each word
+        decodedmessage += ' '
+
+    return decodedmessage.strip()
+
+# This is an example of decoding (where the not a word part is left out)
+morsestring = "... --- ... / -. -.---"
+
+----------------
+import cv2
+import numpy as np
+from PIL import Image
+"""
+This code identifies and marks the center of the brightest area in an image, assumed to be an LED, and saves the result
+
+This script loads an image and processes it to find the brightest area, which is assumed to represent an LED
+
+The process involves converting the image to grayscale, applying a threshold to isolate bright areas, finding contours within these areas, and then identifying the largest contour as the LED. The center of this contour
+is calculated and marked with a circle
+
+Finally, the image with the marked LED center is saved to a new file
+"""
+
+# This first loads the image
+imagepath = 'photos_1.jpg'
+image = cv2.imread(imagepath)
+
+# This then converts the image to greyscale
+grayimage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+# This code below applys a threshold in order to get the brightest areas
+i, brightareas = cv2.threshold(grayimage, 220, 255, cv2.THRESH_BINARY)
+
+# This finds the contours in the bright areas
+contours, i = cv2.findContours(brightareas, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+# Assume the largest contour is the LED
+ledcontour = max(contours, key=cv2.contourArea)
+
+# This calculates the center of the contour
+M = cv2.moments(ledcontour)
+if M["m00"] != 0:
+    cX1 = int(M["m10"] / M["m00"])
+    cY1 = int(M["m01"] / M["m00"])
+else:
+    cX1, cY1 = 0, 0
+
+print("The center is (",cX1,",",cY1, ")")
+# This draws a circle at the center of the LED contour
+cv2.circle(image, (cX1, cY1), 20, (0, 255, 0), -1)
+
+# This saves the resulting image with the dot
+output_path = 'photos_1_led_detected.jpg'
+cv2.imwrite(output_path, image)
+Image.open('photos_1_led_detected.jpg')
+---------------
+import cv2
+import numpy as np
+import os
+
+# This first defines the centers and the radius of said centers, as well as the symbol of the morse code within a tuple
+centersinfo = [
+    {'center': (cX1, cY1), 'radius': 20, 'symbol': '-'},
+    {'center': (cX2, cY2), 'radius': 16, 'symbol': '.'},
+    {'center': (cX3, cY3), 'radius': 14, 'symbol': '/'},
+    {'center': (cX4, cY4), 'radius': 12, 'symbol': ' '}
+]
+
+# This function is used to check if a point is within the radius of a center
+def is_within_radius(point, center, radius):
+    x, y = point
+    center_x, center_y = center
+    return np.sqrt((x - center_x) ** 2 + (y - center_y) ** 2) <= radius
+
+# This is the main function, used to process multiple images for decoding of morse code
+def processimagesmorse(basepath, prefix, centersinfo, morselength):
+    """
+    This function processes a sequence of images to decode Morse code based on the presence of light points within defined centers
+
+    This function iterates through a series of images named according to a specified prefix and sequence number, decoding Morse code symbols represented by light points
+
+    Each light point is identified by its contour in the image and matched to predefined centers with associated Morse code symbols based on its spatial location
+
+    Parameters:
+    - basepath (str): The base directory path where the images are stored
+    - prefix (str): The common prefix for the image filenames, before the sequence number and file extension.
+    - centersinfo (list of dicts): A list of dictionaries, each containing a 'center' (tuple of x, y coordinates),
+                                   a 'radius' (int) defining the area of interest around the center, and a 'symbol'
+                                   (str) representing the Morse code symbol associated with the center
+    - morselength (int): The total number of images (and thus Morse code symbols) to process
+
+    Returns:
+    - list of str: A list of decoded Morse code symbols extracted from the sequence of images
+    """
+    morsecodelist = []
+
+    # This loops through each image based on the how long the morse code sequence is
+    for i in range(1, morselength + 1):
+        image_path = f"{basepath}/{prefix}{i}.jpg"
+
+        # This checks if the file exists, before continuing on
+        if not os.path.exists(image_path):
+            print(f"File not found: {image_path}")
+            continue
+
+        # These codes below review process the image, finding the place where the contour is the highest, aka where the led is
+        image = cv2.imread(image_path)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        _, binary = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY)
+        contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # This goes through each contour to find its center and match with known centers
+        for contour in contours:
+            M = cv2.moments(contour)
+            if M['m00'] != 0:
+                cx = int(M['m10'] / M['m00'])
+                cy = int(M['m01'] / M['m00'])
+                contour_center = (cx, cy)
+
+                # This for and if loop below checks if the contour has a match with the previous 4 processed images and appends the symbols
+                for centerinf in centersinfo:
+                    if is_within_radius(contour_center, centerinf['center'], centerinf['radius']):
+                        morsecodelist.append(centerinf['symbol'])
+                        # It breaks out of the loop when there is a match
+                        break
+
+    return morsecodelist
+
+# This basepath updates the directory to the content file
+basepath = '/content'
+
+# This states the prefix of said example, going through all the number of symbols
+prefix = 'photo'
+morselength = len(morsecode)
+
+# This finally calls the main function, and then prints out the resulting morse code list from the image processing
+morsecodelist = processimagesmorse(basepath, prefix, centersinfo, morselength)
+morsestrings = ''.join(morsecodelist)
+print(morsestrings)
+
+
+
+decoded = decodemorse(morsestring)
+print(f"The decoded Morse Code: {decoded}")
