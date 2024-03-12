@@ -1,0 +1,123 @@
+#capture prevents the output of the wget from showing
+%%capture
+!wget "http://www.csc.calpoly.edu/~dekhtyar/466-Fall2019/data/babynames/NationalNames.csv"
+!wget "http://www.csc.calpoly.edu/~dekhtyar/466-Fall2019/data/babynames/StateNames.csv"
+!wget "https://raw.githubusercontent.com/maciverlab/ME224_public/main/homework/data_forensics/found_on_phone_cleaned.csv"
+!wget  "https://raw.githubusercontent.com/Aokehua23132/Testing/main/
+
+reading files
+def read_csv(filename):
+  csv=[]
+  with open(filename, "r") as file:
+    lines = file.readlines()
+    headers = lines[0].replace("\n","").split(",")
+    for line in lines[1:]:
+      values = line.replace("\n","").split(",")
+      csv.append ({headers[i]: values[i] for i in range(len(values))} )
+  return csv
+csv = read_csv('/content/NationalNames.csv')
+
+
+pandas (not specific for numbers)
+# We start with importing the package
+import pandas as pd
+
+# load the national baby names database
+df = pd.read_csv("NationalNames.csv")
+# show first 5 rows
+df.head(5)
+
+
+# load the state baby names database
+state_df = pd.read_csv("StateNames.csv")
+# Show the last 5 rows
+state_df.tail(5)
+
+
+# The columns are the labels across the top
+print(state_df.columns[1])
+print(type(state_df.columns[1]))
+# The indexes run down the side (rows)
+print(state_df.index)
+
+# Show the basic info of your data: how many rows and columns, and what are they?
+df.info()
+
+#use sort_values to sort by year descending
+sorted_df = df.sort_values(by="Name", ascending=True)
+sorted_df.head(5)
+
+or 
+
+#use sort_values to sort by year and count descending
+two_key_sorted_df= df.sort_values(by=["Year","Count"], ascending=False)
+two_key_sorted_df.head(5)
+
+# We can access a column with the . notation shown here
+
+df.Count (gives us the entire index with counts and length)
+or 
+# Or multiple columns using a list to index
+# note: make sure you use double square brackets [["column_1","column_2"]]
+df[["Name","Count"]]
+
+# We can slice like in a list. Remember, dataframe is like a 2D list,
+df[10:11]
+
+# so the code below will get all the columns
+# Notice how the row indexes are numeric and that's what we slice on
+
+# The operation order doesn't alter the result
+# Rever the column selection and slicing operation, check the results
+df[:10][["Year", "Name"]]
+
+#filter all Male names from this century in the state of Illinois
+state_df[state_df.Gender == "M"][state_df.Year >= 2000][state_df.State == "IL"]
+
+# print loc[0]
+print(sorted_df.loc[0])
+# print iloc[0]
+print()
+print(sorted_df.iloc[0])
+loc is strictly labeled based, iloc is integer based and works on indexes
+
+df.info() gives us info on the data frames
+
+path = df[['latitude', 'longitude']]
+kms = df['kms']
+
+vel = df['gps_currKPH'] # velocity in kph
+vel_m_per_s = vel*(10/36)
+
+import matplotlib.pyplot as plt
+plt.plot(df['currBPM'],color='green')
+plt.plot(df['gps_currKPH'],color='blue')
+
+
+# Pandas, and install the folium package, which lets you work with
+# maps, and numpy
+%%capture
+!pip install folium
+
+#use sort_values to sort by year descending
+sorted_df = df.sort_values(by="Name", ascending=True)
+sorted_df.head(5)
+
+import folium
+
+token = "pk.eyJ1IjoiZ2VybWFuZXNwaW5vc2EiLCJhIjoiY2x0NHVmcG1hMDZucjJpcXE1MzQ0Ym55eCJ9.byXqX6eUYcwDbOEZ1d05-g"
+
+tileurl = 'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.png?access_token=' + str(token)
+
+path = df[['latitude', 'longitude']]
+
+map = folium.Map(location=[path.latitude.mean(), path.longitude.mean()],
+                 zoom_start = 10,
+                 tiles=tileurl,
+                 control_scale=True,
+                 attr='Mapbox')
+path_taken = folium.PolyLine(path).add_to(map)
+folium.Circle(path[0:1], color="green").add_to(map)
+folium.Circle(path[-1:], color="red").add_to(map)
+
+map
