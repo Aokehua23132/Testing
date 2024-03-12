@@ -205,8 +205,71 @@ print('len(drand) = ', len(drand))
 
 matches = [k for k, v in drand.items() if k == v]
 print(matches)
+----
+import pandas as pd
 
+# Create the DataFrame
+data = {'OrderID': [1, 2, 3],
+        'Product': ['Apple', 'Banana', 'Orange'],
+        'Quantity': [3, 2, 5],
+        'Price': [1.00, 0.50, 0.75]}
+df = pd.DataFrame(data)
 
+# Calculate the total sales amount for each order
+df['TotalAmount'] = df['Quantity'] * df['Price']
+
+# Print the updated DataFrame
+print(df)
+
+--
+import requests
+
+def check_website_status(url):
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            print(f"{url} is online.")
+        else:
+            print(f"{url} is offline or there was a problem (Status Code: {response.status_code}).")
+    except requests.exceptions.RequestException as e:
+        print(f"Error checking {url}: {e}")
+
+# Example call
+check_website_status("https://www.example.com")
+--
+
+import pandas as pd
+data = pd.DataFrame({
+    'Product': ['Apples', 'Oranges', 'Grapes', 'Bananas'],
+    'Quantity': [3, 6, 8, 2],
+})
+filtered_data = data[data['Quantity'] > 5]
+print(filtered_data)
+---
+
+import folium
+
+earthquake_map = folium.Map(location=[0, 0], zoom_start=2)
+for _, row in earthquakes.iterrows():
+    folium.Circle(
+        location=[row['Latitude'], row['Longitude']],
+        radius=row['Magnitude'] * 10000,
+        color='red',
+        fill=True,
+    ).add_to(earthquake_map)
+
+earthquake_map
+
+---
+
+mountains_map = folium.Map(location=[27.9881, 86.9250], zoom_start=5)  # Centered roughly on the Himalayas
+for _, row in mountains.iterrows():
+    folium.Marker(
+        location=[row['Latitude'], row['Longitude']],
+        popup=row['Name'],
+    ).add_to(mountains_map)
+
+mountains_map
 
 
 
