@@ -94,6 +94,53 @@ plt.plot(df['currBPM'],color='green')
 plt.plot(df['gps_currKPH'],color='blue')
 
 
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.read_csv("Raw Data.csv")
+
+df.columns
+# how do we see the difference in time between samples?
+# hint: do you recall a matlab function that does this?
+
+rawt = df['Time (s)']
+rawx = df['Linear Acceleration x (m/s^2)']
+rawy = df['Linear Acceleration y (m/s^2)']
+rawz = df['Linear Acceleration z (m/s^2)']
+
+plt.subplot(1,4,1)
+plt.plot(rawt,rawx, 'r-')
+
+plt.subplot(1,4,2)
+plt.plot(rawt,rawy, 'g-')
+
+plt.subplot(1,4,3)
+plt.plot(rawt,rawz, 'b-')
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.read_csv("Raw Data.csv")
+
+
+rawt = df['Time (s)']
+raw_out = df['Linear Acceleration y (m/s^2)'] # out axis is y
+raw_up = df['Linear Acceleration z (m/s^2)'] #
+raw_right = df['Linear Acceleration x (m/s^2)']
+
+plt.figure(figsize=(12,5))
+
+plt.subplot(1,4,1)
+plt.plot(rawt, raw_out, 'r-')
+
+plt.subplot(1,4,2)
+plt.plot(rawt, raw_up, 'b-')
+
+plt.subplot(1,4,3)
+plt.plot(rawt, raw_right, 'g-')
+
+
+--------------------
 # Pandas, and install the folium package, which lets you work with
 # maps, and numpy
 %%capture
@@ -121,3 +168,63 @@ folium.Circle(path[0:1], color="green").add_to(map)
 folium.Circle(path[-1:], color="red").add_to(map)
 
 map
+----------
+import folium
+
+# Coordinates of New York City
+latitude = 40.7128
+longitude = -74.0060
+
+# Create a map centered around New York City
+map_nyc = folium.Map(location=[latitude, longitude], zoom_start=10)
+
+# Add a marker for New York City
+folium.Marker([latitude, longitude], popup='New York City').add_to(map_nyc)
+
+# Display the map
+map_nyc
+
+-------------------
+import folium
+
+# Create a map centered around the USA
+map_usa = folium.Map(location=[37.0902, -95.7129], zoom_start=4)
+
+# Cities coordinates
+cities = {
+    "New York City": (40.7128, -74.0060),
+    "Los Angeles": (34.0522, -118.2437),
+    "Chicago": (41.8781, -87.6298)
+}
+
+# Add markers for each city
+for city, coords in cities.items():
+    folium.Marker(location=coords, 
+                  popup=city, 
+                  icon=folium.Icon(icon='cloud')).add_to(map_usa)
+
+# Display the map
+map_usa
+
+------------
+import folium
+from folium.plugins import HeatMap
+
+# Sample data: locations in San Francisco (latitude, longitude)
+locations = [
+    (37.7749, -122.4194), # San Francisco
+    (37.7786, -122.4892), # Golden Gate Park
+    (37.7975, -122.4143), # Fisherman's Wharf
+]
+
+# Create a map centered around San Francisco
+map_sf = folium.Map(location=[37.7749, -122.4194], zoom_start=13)
+
+# Create a HeatMap
+HeatMap(locations).add_to(map_sf)
+
+# Display the map
+map_sf
+
+
+

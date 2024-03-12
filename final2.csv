@@ -215,6 +215,60 @@ morselength = len(morsecode)
 morsecodelist = processimagesmorse(basepath, prefix, centersinfo, morselength)
 morsestrings = ''.join(morsecodelist)
 print(morsestrings)
+---------
+import pandas as pd
+
+# 1. Reading a CSV file into a Pandas DataFrame
+df = pd.read_csv('filename.csv')
+
+# 2. Displaying the first 5 rows of a DataFrame
+print(df.head())
+
+# 3. Selecting a specific column from a DataFrame
+column = df['column_name']
+
+# 4. Checking the data type of each column in a DataFrame
+print(df.dtypes)
+
+# 5. Handling missing values in a dataset
+df.dropna(inplace=True)  # Drops rows with any missing value
+df.fillna(value="placeholder", inplace=True)  # Fills missing values with a placeholder
+
+# 11. Grouping data in a DataFrame using one or more columns
+grouped = df.groupby(['column1', 'column2'])
+
+# 12. Pivoting data in a DataFrame
+pivoted = df.pivot(index='row_index', columns='column_name', values='value_column')
+
+# 13. Merging two DataFrames
+merged_df = pd.merge(df1, df2, on='common_column')
+
+# 14. Performing an SQL-style join operation on two DataFrames
+joined_df = pd.merge(df1, df2, how='inner', on='common_column')
+
+# 21. Vectorizing operations on DataFrames for performance
+df['new_column'] = df['column1'] + df['column2']  # Vectorized addition
+
+# 22. Managing hierarchical indexes (MultiIndex)
+multi_index_df = df.set_index(['column1', 'column2'])
+
+# 23. Using window functions in Pandas for running calculations
+rolling_mean = df['column'].rolling(window=3).mean()
+
+# 24. Reshaping a DataFrame using melt
+melted_df = pd.melt(df, id_vars=['id_column'], value_vars=['value_column1', 'value_column2'])
+
+# 29. Access methods: at, iat, loc, and iloc examples
+# Access a single value
+single_value_at = df.at[0, 'column_name']  # Using at
+single_value_iat = df.iat[0, 1]  # Using iat
+# Access a group of rows and columns
+rows_cols_loc = df.loc[0:5, 'column_name']  # Using loc
+rows_cols_iloc = df.iloc[0:5, 0]  # Using iloc
+
+# 30. Saving a DataFrame to a CSV file without the index
+df.to_csv('new_filename.csv', index=False)
+
 
 
 
