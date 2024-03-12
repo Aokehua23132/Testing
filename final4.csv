@@ -1,0 +1,37 @@
+# Selecting a single row by index label
+# Note: In this example, the index label coincides with the integer location, but `loc` works with any kind of index label.
+print(df.loc[0])
+
+# Selecting multiple rows by index label
+print(df.loc[1:2])
+
+
+# Selecting rows by condition, and specific columns by labels
+print(df.loc[df['Age'] > 30, ['Name', 'City']])
+
+# Changing data for a specific cell (changing 'Age' for 'John')
+df.loc[df['Name'] == 'John', 'Age'] = 29
+print(df)
+
+
+import pandas as pd
+
+# Creating a sample DataFrame
+data = {
+    'Name': ['John', 'Anna', 'Peter', 'Linda'],
+    'Age': [28, 34, 29, 32],
+    'City': ['New York', 'Paris', 'Berlin', 'London']
+}
+df = pd.DataFrame(data)
+
+# Selecting a single row
+print(df.iloc[0])
+
+# Selecting multiple rows
+print(df.iloc[1:3])
+
+# Selecting a specific cell (2nd row, 'Age' column, remember Python is 0-indexed)
+print(df.iloc[1, 1])
+
+# Selecting all rows and a specific set of columns (Name and City)
+print(df.iloc[:, [0, 2]])
