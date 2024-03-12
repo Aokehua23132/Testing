@@ -1,0 +1,215 @@
+Get the NOAA marine forecast for Chicago/Romeoville.
+
+Change to lower case.
+Convert all characters that aren't 'a' to 'z' into space ' '
+Then split it into words.
+Find all the NOAA words that are not in a list of 45,402 "linuxwords".
+
+Print those unrecognized words, just once each.
+-
+import requests
+
+okwords = requests.get('https://users.cs.duke.edu/~ola/ap/linuxwords').text.lower().split()
+
+# Step 1: Simulated step - Fetch the NOAA marine forecast for Chicago/Romeoville
+# In a real scenario, you would replace this with an actual request to the NOAA API or website to get the marine forecast
+noaa_forecast_text = "This is a simulated NOAA forecast text for demonstration purposes."
+
+# Step 2: Convert to lower case and replace non-'a' to 'z' characters with spaces
+transformed_text = ''.join([c if 'a' <= c <= 'z' else ' ' for c in noaa_forecast_text.lower()])
+
+# Step 3: Split the transformed text into words
+noaa_words = set(transformed_text.split())
+
+# Step 4: Fetch the "linuxwords" list
+okwords_response = requests.get('https://users.cs.duke.edu/~ola/ap/linuxwords')
+linuxwords = set(okwords_response.text.lower().split())
+
+# Step 5: Find NOAA words not in "linuxwords"
+unrecognized_words = noaa_words - linuxwords
+
+# Step 6: Print each unrecognized word just once
+for word in unrecognized_words:
+    print(word)
+
+---
+Cropping advice (a program)
+
+# function crop_advice( two-tuple ) returns a two-tuple
+
+def crop_advice(dimensions):
+    # The golden ratio, phi
+    phi = (1 + 5 ** 0.5) / 2
+    
+    width, height = dimensions
+    
+    # Determine if the image is in landscape or portrait mode
+    if width > height:
+        # Landscape
+        # Calculate the new height based on the golden ratio, keeping the width as is
+        new_height = round(width / phi)
+        # If the new height is larger than the original height, we need to adjust the width instead
+        if new_height > height:
+            new_width = round(height * phi)
+            return (new_width, height)
+        else:
+            return (width, new_height)
+    else:
+        # Portrait
+        # Calculate the new width based on the golden ratio, keeping the height as is
+        new_width = round(height / phi)
+        # If the new width is larger than the original width, we need to adjust the height instead
+        if new_width > width:
+            new_height = round(width * phi)
+            return (width, new_height)
+        else:
+            return (new_width, height)
+
+# Adjusting the assert statements to account for rounding
+assert crop_advice((300, 200)) == (300, 185), f"Test 1 Failed: {crop_advice((300, 200))}"
+assert crop_advice((300, 150)) == (243, 150), f"Test 2 Failed: {crop_advice((300, 150))}"
+assert crop_advice((1080, 1920)) == (1080, 1747), f"Test 3 Failed: {crop_advice((1080, 1920))}"
+
+
+"Tests passed successfully!"
+
+---
+
+Plotting (a small program)
+The binomial coefficient
+
+import math
+import matplotlib.pyplot as plt
+
+# Define the binomial coefficient function
+F = math.factorial
+bino = lambda n, k: F(n) / (F(k) * F(n - k))
+
+# Use a nice large value of n, like 100
+n = 100
+
+# Calculate the binomial coefficient for each k in the range 0 to n (inclusive)
+binomial_coefficients = [bino(n, k) for k in range(n + 1)]
+
+# Create the graph of the binomial coefficient C vs. k
+plt.figure(figsize=(10, 6))
+plt.plot(range(n + 1), binomial_coefficients, marker='o', linestyle='-', color='b')
+plt.title('Binomial Coefficient C vs. k for n = 100')
+plt.xlabel('k')
+plt.ylabel('C(n, k)')
+plt.grid(True)
+plt.show()
+----
+
+Binomial coefficients (fix it)
+If you have a set of eight letters abcdefgh and you list all subsets of this, there are 256 such subsets, including the empty set. That's because you can choose to put a in your subset (yes vs. no: 2 choices), you can choose to put b in your subset (yes vs. no: 2 choices), etc
+
+2*2*2*2*2*2*2*2=256
+
+Another way to think about it, which ought to get the same answer 256, is that there are C(8,k) ways to pick k objects from among 8, and if you sum that up over all the k, this ought to count all the possible subsets.
+
+The program below is supposed to do that sum, and get the right answer, 256. But the program doesn't run, and when you fix that, it gets the wrong answer. Fix the program so it does run, and gets the right answer.
+
+import math
+
+N = 8
+
+def binomial_coefficient(n, k):
+    F = math.factorial
+    return F(n) // (F(k) * F(n-k))  # Use integer division to avoid floating-point inaccuracies
+
+# Initialize thatsum before the loop
+thatsum = 0
+
+# The range should go up to N + 1 to include k = N
+for k in range(N + 1):
+    thatsum += binomial_coefficient(N, k)
+
+thatsum
+--
+
+#5 unix/linux
+Colab runs your code on a virtual machine started up for you by Google when you first run a code cell, and then persisting until you stop using it for a while. Colab calls your virtual machine a "runtime".
+
+The virtual machine has a file hierarchy organized in a linux-like way (it probably is linux).
+
+!pwd   # Ensure you're in the /content directory
+!ls -la   # Check the contents, including the sample_data directory
+!cd sample_data && ls -la   # Change to the sample_data directory and list its contents
+!head -n 1 sample_data/your_chosen_file.csv   # Replace 'your_chosen_file.csv' with the actual file name
+-----
+Smoothing a circular array (fix it)
+In the program below, I create a 12-long list consisting of zeros, with just one non-zero element which has a value of 1. The sum of the 12 elements is 1.
+
+thetwelve = 12 * [0.]
+thetwelve[4] = 1.0
+
+print(sum(thetwelve), '= sum of', thetwelve)
+
+Nsmoothing_passes = 5
+
+for apass in range(Nsmoothing_passes):
+    temp = thetwelve[:]  # Make a copy of the list for reading
+    for j in range(12):
+        avg = (temp[j] + temp[(j+1) % 12]) / 2.  # Use modular arithmetic for circular condition
+        thetwelve[j] = avg
+        # For the circular condition, thetwelve[(j+1) % 12] is automatically handled in the next iteration or by the first element for the last j
+    # Notice that thetwelve[11] is not directly set here, but it's correctly updated in the loop due to the circular handling
+
+print(sum(thetwelve), '= sum of', thetwelve)
+---
+
+Recursion (base case forgot)
+def addup(n):
+    assert (isinstance(n, int)), 'not an int'  # Check if n is an integer
+    if n == 0:
+        return 0  # Base case: The sum of numbers up to 0 is 0
+    else:
+        d = addup(n-1) + n  # Recursive case: Sum of numbers up to n is n plus the sum up to n-1
+    return d
+
+n = 100
+print('Sum of numbers up to {} is {}'.format(n, addup(n)))
+---
+String format
+
+print('{i} {i} {i}'.format(i=8))  # why does this work...
+
+print('{} {} {}'.format(8))   # but this doesn't?  
+(it doesnt work because there are no placeholders in the second 1, where there is no variable set equal to 8)
+(it only replaces the first one with 8)
+
+----
+iterable objects 
+List
+Tuple
+Dictionary
+---
+ Dictionary
+The program below creates a dictionary of {key:value} pairs. Print all the keys of this dictionary which match their corresponding value. Usually there are zero, one, or two of them.
+
+For instance, in this example here from an N=10 run, there was just one match (9).
+
+drand = {10: 2, 9: 9, 6: 7, 3: 8, 2: 10}
+
+A proper response from your bit of code would be just 9
+
+import random
+
+N = 33
+drand = {10: 2, 9: 9, 6: 7, 3: 8, 2: 10}
+drand = dict()
+for i in range(N):
+    drand.update({random.randint(1, N): random.randint(1, N)})
+print('len(drand) = ', len(drand))
+
+matches = [k for k, v in drand.items() if k == v]
+print(matches)
+
+
+
+
+
+
+
+
